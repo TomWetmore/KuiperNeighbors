@@ -1,0 +1,77 @@
+ POSITIONED
+---------------------------------------------
+public protocol Positioned
+    var name: String { get }
+    var position: Vector { get }
+---------------------------------------------
+KD3NODE
+---------------------------------------------
+private class KD3Node<Object: Positioned>: CustomStringConvertible
+    let object: Object
+    let axis: Int
+    private(set) var left: KD3Node?
+    private(set) var right: KD3Node?
+    var name: String { object.name }
+    var position: Vector { object.position }
+    var description: String
+    init(axis: Int, object: Object)
+    func insert(_ object: Object)
+    func density(level: Int, densities: inout [Int])
+---------------------------------------------
+KD3TREE
+---------------------------------------------
+public class KD3Tree<Object: Positioned> : CustomStringConvertible
+    private var root: KD3Node<Object>?
+    private(set) var visits = 0
+    private(set) var nearVisits = 0
+    private(set) var farVisits = 0
+    private(set) var trace = ""
+    public var description: String
+    init(objects: [Object])
+    func insert(_ object: Object) {
+    func nearestNeighbor(point: Vector) -> Object? {
+    func density() -> [Int] {
+    private func nearestNeighbor (point: Vector, node: KD3Node<Object>?, near: inout KD3Node<Object>?  nearDistance: inout Double) {
+    func kNearestNeighbors (k: Int, // Number of neighbors to find.  point: Vector) -> ([Object], [Double]) {
+    private func kNearestNeighbors (point: Vector, node: KD3Node<Object>?, queue: inout KD3Queue<Object>) {
+    enum Side { case near, case far }
+    func nearestNeighbor(other: Object) -> Object? {
+    func nearestDifferentNeighbor (point: Vector, tracing: Bool = false) -> Object? {
+    private func nearestDifferentNeighbor (point: Vector, node: KD3Node<Object>?, near: KD3Node<Object>?, nearDistance: Double, side: Side, tracing: Bool, trace: String) {
+    private func addNodeDescription (node: KD3Node<Object>, indent: String, buf: inout String) {
+---------------------------------------------
+KD3QUEUE
+---------------------------------------------
+private class KD3Queue<Object: Positioned>: CustomStringConvertible {
+    var objects = [Object]()
+    var distances = [Double]()
+    let size: Int
+    var full: Bool { objects.count >= size }
+    var maxDistance: Double {
+    var description: String {
+    init (size: Int) {
+    func insert (node: KD3Node<Object>, distance: Double) {
+    private func insertDirect (node: KD3Node<Object>, distance: Double) {
+---------------------------------------------
+BALANCEDTREE
+---------------------------------------------
+public func balancedTree<Object: Positioned> (objects: [Object]) -> KD3Tree<Object>? {
+    var ordered = [Object]()
+    let queue = SortQueue<Object>()
+---------------------------------------------
+SORTQUEUEELEENT
+---------------------------------------------
+private class SortQueueElement<Object> {
+    var axis: Int  // Axis of this element.
+    var objects: [Object]  // Array of Objects in this SortQueueElement.
+    var count: Int { objects.count }  // Number of Objects in this SortQueueElement.
+    var mid: Int { objects.count/2 }  // Index of middle/median Object in this SortQueueElement.
+    init (axis: Int, objects: [Object]) {
+---------------------------------------------
+SORTQUEUE
+---------------------------------------------
+private class SortQueue<Object>
+    var elements = [SortQueueElement<Object>]()  // Elements making up this SortQueue.
+    var empty: Bool { elements.count == 0 }  // Return true if this SortQueue is empty.
+    func enqueue (element: SortQueueElement<Object>) {
+    func dequeue () -> SortQueueElement<Object> {
