@@ -1,32 +1,30 @@
 //
 //  AstroBody.swift
 //
-//  Created by Thomas Wetmore on 8/21/2014.
+//  Created by Thomas Wetmore on 21 August 2014.
 //  Last changed on 22 November 2026.
 //
 
-import Darwin // for math functions
+import Darwin // For math functions.
 
-//  Heliocentric gravitational constant in years and astronomical units;
-/// heliocentricGravitationalConstant is in seconds
-//  and meters.
+///  Heliocentric gravitational constant in years and AU.
 let hgc_year_au = heliocentricGravitationalConstant*pow(secondsPerYear, 2.0)/pow(astronomicalUnit, 3.0);
 
 /// AstroBodies represent objects in the Solar System that orbit the sun. They can be used in
-/// different contexts so not all properties need be set in all applications.
+/// different contexts, so not all properties need be set in all applications.
 ///
 public struct AstroBody: CustomStringConvertible, Positioned, Equatable, Hashable {
 
-    // Intrisic properties, if used.
+    // Intrisic properties.
     public private(set) var name: String             // Name of body. Must be unique.
     public private(set) var mass = 0.0               // Mass of body in kilograms, if used.
     public private(set) var radius = 0.0             // Radius of body in meters, if used.
 
-    // Position and velocity Vectors, if used.
+    // Position and velocity Vectors.
     public private(set) var position = Vector.zero   // Heliocentric position in AU.
     public private(set) var velocity = Vector.zero   // Heliocentric velocity in AU/year.
 
-    // Keplerian elements, if used.
+    // Orbital elements.
     public private(set) var semimajorAxis = 0.0      // Semi-major axis in AU.
     public private(set) var eccentricity = 0.0       // Orbital eccentricity; dimensionless.
     public private(set) var inclination = 0.0        // Inclination from ecliptic in radians.
@@ -50,27 +48,27 @@ public struct AstroBody: CustomStringConvertible, Positioned, Equatable, Hashabl
         trueAnomalyAtEpoch + argPeriapsis
     }
 
-    /// True longitude in radians requires trueAnomaly, argPeriapsis, and longAscendingNode.
+    /// True longitude in radians; requires trueAnomaly, argPeriapsis, and longAscendingNode.
 	public func trueLongitude(trueAnomaly: Double) -> Double {
         trueAnomaly + argPeriapsis + longAscendingNode
     }
 
-    /// Apoapsis distance in au requires eccentricity and semimajorAxis.
+    /// Apoapsis distance in AU; requires eccentricity and semimajorAxis.
     public var apoapsis: Double {
         (1 + eccentricity)*semimajorAxis
     }
 
-    /// Periapsis distance in au; requires eccentricity and semimajorAxis.
+    /// Periapsis distance in AU; requires eccentricity and semimajorAxis.
     public var periapsis: Double {
         (1 - eccentricity)*semimajorAxis
     }
 
-    /// Semilatus rectum in au; requires eccentricity and semimajorAxis.
+    /// Semilatus rectum in AU; requires eccentricity and semimajorAxis.
 	public var semilatusRectum: Double {
         (1 - eccentricity*eccentricity)*semimajorAxis
     }
 
-    /// Orbital period in years; assumes semimajorAxis, hgc_year_au, and body orbiting the sun.
+    /// Orbital period in years; requires semimajorAxis, and hgc_year_au.
     public var period: Double {
         twoPi*sqrt(semimajorAxis*semimajorAxis*semimajorAxis/hgc_year_au)
     }
@@ -88,19 +86,20 @@ public struct AstroBody: CustomStringConvertible, Positioned, Equatable, Hashabl
         return buffer
     }
 
-    // Init AstroBody with intrinsic properties. Mass is in kilograms and radius in meters.
+    /// Init AstroBody with intrinsic properties.
+    ///
     init (name: String, mass: Double, radius: Double) {
         self.name = name
         self.mass = mass
         self.radius = radius
     }
 
-    // Implement hashable protocol. Assumes AstroBodies have unique names.
+    /// Assumes AstroBodies have unique names.
     public func hash (into hasher: inout Hasher) {
         hasher.combine(name)
     }
 
-    /// Set the Keplerian orbital elements for this AstroBody.
+    /// Set the orbital elements for this AstroBody.
     ///
 	mutating func setElements(semimajorAxis: Double,
 							  eccentricity: Double,
@@ -119,24 +118,25 @@ public struct AstroBody: CustomStringConvertible, Positioned, Equatable, Hashabl
 		self.trueAnomalyAtEpoch = trueAnomalyAtEpoch
 	}
 
-    // Set the orbital elements of this AstroBody from its position and velocity in au and au/year.
-    // TODO: THIS METHOD HASN'T BEEN NEEDED SO HASN'T BEEN TESTED. USE WITH CAUTION.
+    /// Set the orbital elements of this AstroBody from its position and velocity in AU and AU/year.
+    /// TODO: THIS METHOD HASN'T BEEN NEEDED SO HASN'T BEEN TESTED. USE WITH CAUTION.
+    ///
     mutating func setElements(primaryMass: Double,
                                g: Double,
                                primaryPosition: Vector,
                                primaryVelocity: Vector) {
 
-        // Get the position and velocity Vectors of this AstroObject relative to its primary.
+        // Get the position and velocity of this AstroObject relative to its primary.
         let position = self.position - primaryPosition
         let velocity = self.velocity - primaryVelocity
-        let radius = position.length  // Distrance from sun.
+        let radius = position.length  // Distance from sun.
         let velocitySquared = velocity.square
 
-        // Get the angular momentum Vector, perpendicular to orbital plane.
+        // Get the angular momentum, perpendicular to orbital plane.
         let angularMomentum = cross(position, velocity)
 
-        // Get the ascending node Vector, the intersection of the orbital ecliptic planes; if the
-        // planes are coplanar this vector is zero.
+        // Get the ascending node, the intersection of the orbital planes; if the the planes
+        // coplanar this vector is zero.
         let ascendingNode: Vector = cross(Vector.k, angularMomentum)
         let nMagnitude: Double = ascendingNode.length
         let coplanar: Bool = nMagnitude == 0
@@ -183,8 +183,8 @@ public struct AstroBody: CustomStringConvertible, Positioned, Equatable, Hashabl
         }
     }
 
-    /// Set the heliocentric coordinates of this body at a specific time. The Keplerian orbital
-	/// elements must be valid.
+    /// Set the heliocentric coordinates of this body for a specific time. The orbital elements
+	/// must be valid.
     ///
     public mutating func setHeliocentric (time: AstroTime) {
 
@@ -213,9 +213,8 @@ public struct AstroBody: CustomStringConvertible, Positioned, Equatable, Hashabl
     }
 
     /// Return the rotation Matrix that converts an AstroBody's perifocal (pq) coordinates
-	/// to heliocentric (ijk) coordinates. The body must have longAscendingNode,
-    /// argPeriapsis, and
-	/// inclination.
+	/// to heliocentric (ijk) coordinates. The body must have longAscendingNode, argPeriapsis,
+    /// and inclination.
     ///
     func periToEclipticMatrix () -> Matrix {
 

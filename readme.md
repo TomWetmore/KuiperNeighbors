@@ -37,7 +37,7 @@ where e is the eccentricity of the orbit.
 
 This is a trancendental equation that must be solved numerically, normally by *Newton-Raphson* iteration, which converges rapidly for Solar System objects (4&ndash;6 iterations usually sufficient.)
 
-Once E is determined, true anomaly is found using a simple formula. The AstroBody struct, found in AstroBody.swift has methods and functions for this and many other astronomical calculations.
+Once E is determined, true anomaly is found using a simple formula. The AstroBody struct, found in AstroBody.swift, has methods and functions for this and many other astronomical calculations.
 
 ###### KD3Tree Nodes, Generics and AstroBodies
 

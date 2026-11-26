@@ -47,6 +47,10 @@
 		26460A4319BD4C57004DD75D /* KD3Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KD3Tree.swift; sourceTree = "<group>"; };
 		266113D32D54685000B592F1 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		2681358230B3494100C9468D /* distant22112026.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = distant22112026.txt; sourceTree = "<group>"; };
+		2681358430B75E6400C9468D /* distant12232023.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = distant12232023.txt; sourceTree = "<group>"; };
+		2681358530B75E6400C9468D /* distant12302020.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = distant12302020.txt; sourceTree = "<group>"; };
+		2681358630B75E6400C9468D /* distant25112026.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = distant25112026.txt; sourceTree = "<group>"; };
+		2681358730B75E6400C9468D /* KD3TreeOutline.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = KD3TreeOutline.txt; sourceTree = "<group>"; };
 		26837DED2D3DD1AF00742A6E /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		26837DEF2D4498A600742A6E /* BruteForce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BruteForce.swift; sourceTree = "<group>"; };
 		26837DF12D455D6000742A6E /* OtherQueues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherQueues.swift; sourceTree = "<group>"; };
@@ -106,6 +110,10 @@
 		262E5779285E164800E13E5E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2681358430B75E6400C9468D /* distant12232023.txt */,
+				2681358530B75E6400C9468D /* distant12302020.txt */,
+				2681358630B75E6400C9468D /* distant25112026.txt */,
+				2681358730B75E6400C9468D /* KD3TreeOutline.txt */,
 				2681358230B3494100C9468D /* distant22112026.txt */,
 				268B145C2D380E750095EA8F /* distant01152025.txt */,
 				268B145A2D380D800095EA8F /* Format.txt */,

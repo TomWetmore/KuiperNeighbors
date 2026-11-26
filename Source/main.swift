@@ -9,7 +9,7 @@ import Foundation
 
 // Program switches.
 let logging = true
-let getBruteForceBodies = true // Brute force distances used as ground truth for the the others.
+let getBruteForceBodies = false // Brute force distances used as ground truth for the the others.
 let getObservationBias = false
 let buildBalancedTree = true
 let buildUnbalancedTree = true
@@ -42,10 +42,11 @@ let checkNearestByObjects = true
 let checkTwoNearestByPoints = true
 let checkTwoNearestByObjects = true
 let runDevelopmentTestsFlag = false
-let path = "/Users/ttw4/Desktop/Development/Swift/KuiperNeighbors/Resources/distant22112026.txt"
+let path = "/Users/ttw4/Desktop/Development/Swift/KuiperNeighbors/Resources/distant25112026.txt"
 
-main() // According to ChatGPT, I really shouldn't have to explicitly call the main function like this.
+testMain() // According to ChatGPT, I really shouldn't have to explicitly call the main function like this.
 func main() {
+
 	let time = AstroTime.now()
 	let bodies = getAstroBodiesFromMPCFile(path, time: time)
 	//let bodies =  getMPCBodiesFrom(path: path)
@@ -57,10 +58,13 @@ func main() {
 	print("\(logTime()): Object: mean = \(mean.format(9)); median = \(median.format(9)); visits = \(visits)")
 }
 
-// This is the main program.
+// This is the "old" main program.
 func testMain() {
 
-	// Get the time to be used as the epoch for all orbital and positional calculatiions.
+    print("================================================")
+    printWithLog("STARTING ORIGINAL MAIN PROGRAM")
+
+	// Use the current time as the epoch for orbital calculatiions.
 	let time: AstroTime = AstroTime.now()
 
 	// Run various tests if requested (left over from development).
@@ -272,8 +276,10 @@ func testMain() {
 	}
 }
 
-// Test the anomaly functions, going back and forth.
+/// Test the anomaly functions, going back and forth.
+///
 func testAnomaly () {
+
 	var M = 0.618830048239492  // mean anomaly.
 	let e = 0.2474562  // eccentricity.
 	var E = meanToEccentricAnomaly(meanAnomaly: M, eccentricity: e)  // eccentric anomaly.
@@ -284,8 +290,10 @@ func testAnomaly () {
 	print("T = \(T)  E = \(E)  M = \(M)");
 }
 
-// Test the AstroTime functions.
+/// Test the AstroTime functions.
+///
 func testTime () {
+
 	let today = AstroTime.now()
 	print("\(today)")
 	let julian = today.toJulian()
@@ -302,8 +310,10 @@ func testTime () {
 	print("\(String(describing: testTime))")
 }
 
-// Test the Matrix class.
+/// Test the Matrix class.
+///
 func testMatrix() {
+
 	var test = Matrix.identity * Matrix.identity
 	print(test)
 	test = Matrix.identity * Matrix.identity.transpose()
@@ -360,3 +370,8 @@ func runDevelopmentTests () {
 	testMatrix()   // Test Matrix multiplication.
 }
 
+
+func printWithLog(_ message: String) {
+
+    print("\(logTime()): \(message)")
+}
