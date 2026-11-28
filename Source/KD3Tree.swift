@@ -1,22 +1,21 @@
 //
 //  KD3Tree.swift
 //
-//  Created by Thomas Wetmore on 9/7/2014.
-//  Last changed on 1/24/2024.
+//  Created by Thomas Wetmore on 7 September 2014.
+//  Last changed on 27 November 2026.
 //
-// This file implements KD3Tree, a three-dimensional KD tree that enables organizing and querying Objects in three-
-// dimensional space. It partitions space hierarchically along one axis at a time, alternating at each level. This
-// allows efficient nearest-neighbor searches, range queries, and other spatial operations, reducing the computational
-// complexity compared to brute-force approaches.
-//
-// Included are a public interface, a public class, four private classes and a public function:
-//
-// Positioned -- public protocol that Objects in KD3Trees must meet. Positioned has two properties:
-//   name: String { get } -- name of the Object. Objects should have unique names.
-//   position: Vector { get } -- position of the Object in 3-space. Vector is found in the same project.
-//
-// KD3Tree<Object: Positioned> : CustomStringConvertible -- The only class with a public interface.
-//   The public API consists of two properties, two initializers and four methods:
+/// This file implements KD3Tree, a three-dimensional KD tree that organizes Objects in 3-space.
+/// A KD3Tree partitions space by cycling through three dimensions. This allows efficient nearest-
+/// neighbor searches, range queries, and other operations, reducing computational complexity.
+///
+/// Included are a public interface, a public class, four private classes and a public function:
+///
+/// Positioned -- public protocol that Objects in KD3Trees must meet. Positioned has properties:
+///   name: String { get } -- unique name of the Object.
+///   position: Vector { get } -- position of the Object in 3-space.
+///
+/// KD3Tree<Object: Positioned> : CustomStringConvertible -- The only class with a public interface.
+///   The public API consists of two properties, two initializers and four methods:
 //
 //   visits: Int { get } -- used by the most recent neighbor calculation.
 //   description: String { get } -- Indented string showing contents of the KD3Tree.
@@ -37,7 +36,7 @@
 // SortQueueElement<Object> -- Private class used by the balancedTree function.
 // SortQueue<Object> -- Private class used by the balancedTree function.
 
-/// Public protocol implemented by Object in a KD3Node. Objects must have a name and a position.
+/// Protocol implemented by KD3Node Object.
 ///
 public protocol Positioned {
 
@@ -45,8 +44,8 @@ public protocol Positioned {
     var position: Vector { get }  // Position of object.
 }
 
-// KD3Node is a node in a KD3Tree. Each has an Object to implement the Positioned protocol. They have the fields that
-// hold the KD3Tree structure: the axis, and left and right children. This is a private class.
+/// Node in a KD3Tree.
+///
 private class KD3Node<Object: Positioned> : CustomStringConvertible {
 
 	let object: Object // Object this node holds.
@@ -57,22 +56,25 @@ private class KD3Node<Object: Positioned> : CustomStringConvertible {
     var position: Vector { object.position } // Position of this node.
     var description: String { "\(axis) \(position) \(name)" } // Description of this node.
 
-    // init initializes a KD3Node with an Object and axis.
+    /// Init a KD3Node with an Object and axis.
     init(axis: Int, object: Object) {
+
         self.axis = axis
         self.object = object
     }
 
-    // insert inits a KD3Node from an Object and recursively inserts it below this KD3Node.
+    /// Create and recursively insert a new KD3Node below this KD3Node.
+    /// 
     func insert(_ object: Object) {
+
         if object.position[axis] < self.position[axis] {
-            if let left = left {
+            if let left {
                 left.insert(object)
             } else {
                 left = KD3Node(axis: (axis + 1)%3, object: object)
             }
         } else {
-            if let right = right {
+            if let right {
                 right.insert(object)
             } else {
                 right = KD3Node(axis: (axis + 1)%3, object: object)
@@ -80,23 +82,26 @@ private class KD3Node<Object: Positioned> : CustomStringConvertible {
         }
     }
 
-    // density gets the 'density' of this KD3Node and those below it; density measures how 'full' the binary tree below
-	// this node is.
+    /// Density of this KD3Node; density measures the completeness of the binary
+    /// tree below this node.
+    ///
     func density(level: Int, densities: inout [Int]) {
+
         while densities.count <= level { // Grow density array when necessary.
             densities.append(0)
         }
         densities[level] += 1
-        if let left = left {
+        if let left {
             left.density(level: level+1, densities: &densities)
         }
-        if let right = right {
+        if let right {
             right.density(level: level+1, densities: &densities)
         }
     }
 }
 
-// Cartesian KD3Tree binary search trees.
+/// Cartesian KD3Tree binary search trees.
+///
 public class KD3Tree<Object: Positioned> : CustomStringConvertible {
 
 	private var root: KD3Node<Object>? // Root of tree; created first time insert is called.
@@ -105,8 +110,10 @@ public class KD3Tree<Object: Positioned> : CustomStringConvertible {
 	private(set) var farVisits = 0  // Number of far side visits. For testing and debugging.
 	private(set) var trace = ""  // Latest search trace. For testing and debugging.
 
-	public var description: String {  // Indented description of this KD3Tree.
-		if let root = root {
+    /// Description of this KD3Tree.
+	public var description: String {
+
+		if let root {
 			var buf = ""
 			addNodeDescription(node: root, indent: "", buf: &buf)
 			return buf
@@ -115,61 +122,73 @@ public class KD3Tree<Object: Positioned> : CustomStringConvertible {
 		}
 	}
 
-	// init(objects:) initializes a KD3Tree from an array of Objects. For balanced trees the array is presorted.
+	/// Create a KD3Tree from an array of Objects. For balanced trees the array must be
+    /// presorted.
+    ///
 	init(objects: [Object]) {
+
 		objects.forEach { self.insert($0) }
 	}
 
-	// insert(object:) inserts a new node with the object into the tree. It calls the recursive insert method on the
-	// tree's root.
+	/// Inserts a new KD3Node with an Object into the tree. It uses the insert method on the root.
+	///
 	private func insert(_ object: Object) {
-		if let root = root {
-			root.insert(object) // Call the node's insert function.
+
+		if let root {
+			root.insert(object)
 		} else {
 			root = KD3Node(axis: 0, object: object)
 		}
 	}
 
-	// density finds the density of this tree, that is, the number of nodes there are at each distance from the root.
-	// For balanced trees the values are powers of two until the deepest level. This provides a view on the
+	/// Density of this KD3Tree shown as the number of KD3Nodes at each level distance from
+    /// the root. For balanced trees the values are powers of two until the deepest level.
+    ///
 	func density() -> [Int] {
+
 		var densities = [Int]()  // Number of KD3Nodes at each level.
-		if let root = root {
+		if let root {
 			root.density(level: 1, densities: &densities)
 		}
 		return densities
 	}
 
-	// count() returns the number of KD3Nodes in this KD3Tree.
+	/// The number of KD3Nodes in this KD3Tree.
+    ///
 	func count() -> Int {
-		return count(node: root)
-	}
 
-	// count(node:) is the recursive helper that counts nodes in a subtree.
-	private func count(node: KD3Node<Object>?) -> Int {
-		guard let node = node else { return 0 }
-		return 1 + count(node: node.left) + count(node: node.right)
+        func count(node: KD3Node<Object>?) -> Int {
+            guard let node = node else { return 0 }
+            return 1 + count(node: node.left) + count(node: node.right)
+        }
+
+		return count(node: root)
 	}
 }
 
-// Nearest neighbors to points (Vectors).
+/// Nearest neighbors to points.
+///
 extension KD3Tree {
 
 	// Legend: I calls II. III call IV. IV calls V. III not called (part of API.)
 
-	// I. nearestNeighbors(points:) returns the nearest Objects and distances for every point in the Array of points.
+	/// I. Return the nearest Objects and distances for every point in an Array of points.
+    ///
 	func nearestNeighbors(points: [Vector]) -> ([Object], [Double]) {
+
 		var visits = 0
 		return nearestNeighbors(points: points, visits: &visits)
 	}
 
-	// II. nearestNeighbors(points:visits:) returns the nearest Objects and distances for every point in the Array of
-	// points. Also returns the number of visits needed to find the neighbors.
+	/// II. Return the nearest Objects and distances for every point in an Array of points.
+	/// Also returns the number of visits needed to find the neighbors.
+    ///
 	func nearestNeighbors(points: [Vector], visits: inout Int) -> ([Object], [Double]) {
+
 		var objects: [Object] = []
 		var distances: [Double] = []
 		points.forEach {
-			//print("Processing point: \($0)")
+
 			if let (object, distance) = nearestNeighbor(point: $0) {
 				objects.append(object)
 				distances.append(distance)
@@ -179,16 +198,21 @@ extension KD3Tree {
 		return (objects, distances)
 	}
 
-	// III. nearestNeighbor(point:) returns the nearest Object and distance to a point. If the point has the same
-	// position as an Object that Object is returned.
+	/// III. Return the nearest Object and distance to a point. If the point has the same
+	/// position as an Object that Object is returned.
+    ///
 	func nearestNeighbor(point: Vector) -> (Object, Double)? {
+
 		var visits = 0
 		return nearestNeighbor(point: point, visits: &visits)
 	}
 
-	// IV. nearestNeighbor(point:visits:) returns the nearest Object and distance to a point. If the point has the same
-	// position as an Object that Object is returned. Returns the number of visits used to find the neighbor.
+	/// IV. Return the nearest Object and distance to a point. If the point has the same
+	/// position as an Object that Object is returned. Returns the number of visits used
+    /// to find the neighbor.
+    ///
 	func nearestNeighbor(point: Vector, visits: inout Int) -> (Object, Double)? {
+
 		var near: KD3Node<Object>?
 		var distance = Double.infinity
 		self.visits = 0
@@ -197,21 +221,29 @@ extension KD3Tree {
 		return near == nil ? nil : (near!.object, distance)
 	}
 
-	// V. nearestNeighbor(point:node:near:nearDistance) is the recursive helper that does nearest neighbor point search.
+	/// V. Recursive helper that does nearest neighbor point search.
+    ///
 	private func nearestNeighbor(point: Vector, node: KD3Node<Object>?, near: inout KD3Node<Object>?,
 								 nearDistance: inout Double) {
-		guard let node = node else { return }
+
+		guard let node else {
+            return
+        }
 		visits += 1
 		let axis = node.axis
 		let distance = (point - node.position).length
+
 		if distance < nearDistance { // Closest so far?
 			nearDistance = distance
 			near = node
-			if nearDistance == 0.0 { return }
+			if nearDistance == 0.0 {
+                return
+            }
 		}
 		// Find the side of the axis more likely to hold the neighbor.
 		var one: KD3Node<Object>?
 		var two: KD3Node<Object>?
+
 		if point[axis] < node.position[axis] {
 			one = node.left
 			two = node.right
@@ -219,27 +251,35 @@ extension KD3Tree {
 			one = node.right
 			two = node.left
 		}
-		nearestNeighbor(point: point, node: one, near: &near, nearDistance: &nearDistance) // More likely side
-		if let two = two {
+        // Look on the more likely side.
+		nearestNeighbor(point: point, node: one, near: &near, nearDistance: &nearDistance)
+		if let two {
+            // Look on the less likely side.
 			if abs(point[axis] - node.position[axis]) < nearDistance {
-				nearestNeighbor(point: point, node: two, near: &near, nearDistance: &nearDistance) // Less likely.
+				nearestNeighbor(point: point, node: two, near: &near, nearDistance: &nearDistance)
 			}
 		}
 	}
 }
 
-// Nearest neighbors to Objects.
+/// Nearest neighbors to Objects. If the Object (or an Object with its exact position) is already
+/// in the KD3Tree, then that Object is the nearest and is returned. This can be surprising.
+///
 extension KD3Tree {
 
-	// I. nearestNeighbors(objects:) returns the nearest neighbors of an array of Objects and their distances.
+	/// I. Return the nearest neighbors of an Array of Objects and their distances.
+    ///
 	func nearestNeighbors(objects: [Object]) -> ([Object], [Double]) {
+
 		var visits = 0
 		return nearestNeighbors(objects: objects, visits: &visits)
 	}
 
-	// II. nearestNeighbors(objects:visits:) returns the nearest neighbors of an Array of Objects and their distances, and
-	// the number of visits needed to find the neighbors.
+	/// II. Return the nearest neighbors of an Array of Objects and their distances, and
+	/// the number of visits needed to find them.
+    ///
 	func nearestNeighbors(objects: [Object], visits: inout Int) -> ([Object], [Double]) {
+
 		var neighbors: [Object] = []
 		var distances: [Double] = []
 		objects.forEach {
@@ -252,27 +292,32 @@ extension KD3Tree {
 		return (neighbors, distances)
 	}
 
-	// III. nearestNeighbor(object:) returns the nearest Object to an Object and its distnce.
+	/// III. Return the nearest Object to an Object and its distance. If the Object is already
+    /// in the tree or there is another Object in the tree with the exact position it is returned.
+    ///
 	func nearestNeighbor(object: Object) -> (Object, Double)? {
+
 		var visits = 0
 		return nearestNeighbor(object: object, visits: &visits)
 	}
 
-	// IV. nearestNeighbor(object:visits:) returns the nearest Object to an Object and its distance, and passes back
-	// the number needed to find the object.
+	/// IV. Return the nearest Object to an Object and its distance, and return the number
+	/// of visits needed to find the Object.
+    ///
 	func nearestNeighbor(object: Object, visits: inout Int) -> (Object, Double)? {
+
 		var near: KD3Node<Object>? = nil
 		var nearDistance = Double.infinity
-		self.visits = 0 // Clear the tree's visit counter.
+
+		self.visits = 0
 		nearestNeighbor(object: object, node: root, near: &near, nearDistance: &nearDistance)
 		visits = self.visits
 		if near == nil { return nil }
 		return (near!.object, nearDistance)
 	}
 
-	// V. neareatNeighbor(body:node:near&:nearDistance&:) is the recursive helper used by nearestNeighbor(other:visits:).
-	// Parameters: self is tree; body is the Object needed nearest Object, node is the current node in the recursive
-	// search; near is the nearest node so far, and distance is the distance to the nearest so far.
+	/// V. Recursive helper used to find nearestNeighbor Objects.
+	///
 	private func nearestNeighbor(object: Object, node: KD3Node<Object>?, near: inout KD3Node<Object>?,
 								 nearDistance: inout Double) {
 		guard let node = node else { return }

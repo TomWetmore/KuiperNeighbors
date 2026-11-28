@@ -62,8 +62,8 @@
             filePath = "Source/KD3Tree.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "446"
-            endingLineNumber = "446"
+            startingLineNumber = "491"
+            endingLineNumber = "491"
             landmarkName = "nearestNeighborTrace(points:nearVisits:farVisits:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -78,8 +78,8 @@
             filePath = "Source/KD3Tree.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "450"
-            endingLineNumber = "450"
+            startingLineNumber = "495"
+            endingLineNumber = "495"
             landmarkName = "nearestNeighborTrace(points:nearVisits:farVisits:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -94,8 +94,8 @@
             filePath = "Source/KD3Tree.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "474"
-            endingLineNumber = "474"
+            startingLineNumber = "519"
+            endingLineNumber = "519"
             landmarkName = "nearestNeighborTrace(point:node:near:nearDist:trace:)"
             landmarkType = "7">
          </BreakpointContent>
