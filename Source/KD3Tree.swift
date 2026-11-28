@@ -2,7 +2,7 @@
 //  KD3Tree.swift
 //
 //  Created by Thomas Wetmore on 7 September 2014.
-//  Last changed on 27 November 2026.
+//  Last changed on 28 November 2026.
 //
 /// This file implements KD3Tree, a three-dimensional KD tree that organizes Objects in 3-space.
 /// A KD3Tree partitions space by cycling through three dimensions. This allows efficient nearest-
@@ -49,14 +49,14 @@ public protocol Positioned {
 private class KD3Node<Object: Positioned> : CustomStringConvertible {
 
 	let object: Object // Object this node holds.
-    let axis: Int // Axis that splits this this node's children.
-    var left: KD3Node?  // Left child if any.
-    var right: KD3Node? // Right child if any.
+    let axis: Int // Axis that splits this node's children.
+    var left: KD3Node?  // Left child.
+    var right: KD3Node? // Right child.
     var name: String { object.name } // Name of this node.
     var position: Vector { object.position } // Position of this node.
-    var description: String { "\(axis) \(position) \(name)" } // Description of this node.
+    var description: String { "\(axis): \(name): \(position)" } // Description of this node.
 
-    /// Init a KD3Node with an Object and axis.
+    /// Create a KD3Node with an Object and axis.
     init(axis: Int, object: Object) {
 
         self.axis = axis
@@ -104,7 +104,7 @@ private class KD3Node<Object: Positioned> : CustomStringConvertible {
 ///
 public class KD3Tree<Object: Positioned> : CustomStringConvertible {
 
-	private var root: KD3Node<Object>? // Root of tree; created first time insert is called.
+	private var root: KD3Node<Object>? // Root of tree.
 	private(set) var visits = 0 // Number of nodes visited by the last tree search.
 	private(set) var nearVisits = 0 // Number of near side visits. For testing and debugging.
 	private(set) var farVisits = 0  // Number of far side visits. For testing and debugging.
@@ -130,7 +130,7 @@ public class KD3Tree<Object: Positioned> : CustomStringConvertible {
 		objects.forEach { self.insert($0) }
 	}
 
-	/// Inserts a new KD3Node with an Object into the tree. It uses the insert method on the root.
+	/// Insert a KD3Node into the tree. U-ses the insert method on the root.
 	///
 	private func insert(_ object: Object) {
 
@@ -262,8 +262,8 @@ extension KD3Tree {
 	}
 }
 
-/// Nearest neighbors to Objects. If the Object (or an Object with its exact position) is already
-/// in the KD3Tree, then that Object is the nearest and is returned. This can be surprising.
+/// Nearest neighbors to Objects. If the Object (or an Object with its position) is already in the
+/// KD3Tree, then that Object is the nearest and is returned. This can be surprising.
 ///
 extension KD3Tree {
 
@@ -282,6 +282,7 @@ extension KD3Tree {
 
 		var neighbors: [Object] = []
 		var distances: [Double] = []
+		
 		objects.forEach {
 			if let (neighbor, distance) = nearestNeighbor(object: $0) {
 				neighbors.append(neighbor)
@@ -312,15 +313,20 @@ extension KD3Tree {
 		self.visits = 0
 		nearestNeighbor(object: object, node: root, near: &near, nearDistance: &nearDistance)
 		visits = self.visits
-		if near == nil { return nil }
+		if near == nil {
+			return nil
+		}
 		return (near!.object, nearDistance)
 	}
 
-	/// V. Recursive helper used to find nearestNeighbor Objects.
+	/// V. Recursive helper used to find nearest neighbor Objects.
 	///
 	private func nearestNeighbor(object: Object, node: KD3Node<Object>?, near: inout KD3Node<Object>?,
 								 nearDistance: inout Double) {
-		guard let node = node else { return }
+								 
+		guard let node else {
+			return
+		}
 		visits += 1
 		let axis = node.axis
 
